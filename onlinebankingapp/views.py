@@ -60,5 +60,31 @@ def home_view(request):
 	return render(request,'onlinebankingapp/Home.html')
 
 
+def deposit_view(request):
+	if(request.method=="GET"):
+		RedID=request.session['RedID']
+		connection=sqlite3.connect('dbonlinebanking.sql')
+		c=connection.cursor()
+		c.execute('SELECT Account No ,Balance from tblregistration WHERE RedID=?',(RedID,))
+		allrecords=c.fetchall()
+		return render(request,'onlinebankingapp/Deposit.html',{'Students':allrecords})
+	elif request.method=="POST":
+		RedID=request.session['RedID']
+		balance=request.POST['txtbalance']
+		deposit=request.POST['txtdeposit']
+		if(balance and deposit is not None ):
+			total=float(balance)+float(deposit)
+
+			connection=sqlite3.connect('dbonlinebanking.sql')
+			c=connection.cursor()
+			c.execute('''UPDATE tblregistration SET Balance =? WHERE RedID=?''',(total,RedID))
+			
+			connection.commit()
+			connection.close()
+			return redirect('/balance/')
+		else:
+			return render(request,'onlinebankingapp/dummy1.html')
+
+
 
 		
